@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useWeb3Context } from "../context";
 import {
@@ -47,6 +48,9 @@ const AssetTable = () => {
   const [tableData, setTableData] = useState<TableData>({});
   const [tokenPrices, setTokenPrices] = useState<TokenPrices>({});
   const [tableDataLoading, setTableDataLoading] = useState(false);
+  const {
+    query: { wallet },
+  } = useRouter();
 
   useEffect(() => {
     console.log("loading token prices");
@@ -55,15 +59,17 @@ const AssetTable = () => {
 
   useEffect(() => {
     setTableData({});
-    if (!address) return;
+    if (!address && !wallet) return;
     setTableDataLoading(true);
-    console.log(`reloading stats for ${shortenAddress(address)}`);
+    console.log(
+      `reloading stats for ${shortenAddress(address ?? (wallet as string))}`
+    );
 
-    loadStakedAssets(address).then((data) => {
+    loadStakedAssets(address ?? (wallet as string)).then((data) => {
       setTableData(data);
       setTableDataLoading(false);
     });
-  }, [address]);
+  }, [address, wallet]);
 
   return (
     <div
