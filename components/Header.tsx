@@ -18,6 +18,7 @@ const Header = () => {
             </div>
           </Link>
           <a
+            target={"_blank"}
             className="block px-2.5 py-1.5 font-bold rounded text-umbriagrey-background bg-umbria-500 hover:bg-umbria-600 text-sm"
             href="https://bridge.umbria.network"
           >

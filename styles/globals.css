@@ -23,3 +23,7 @@ body {
   font-family: "DM Sans Regular", "Arial", sans-serif;
   font-weight: 300;
 }
+
+tr:last-of-type td {
+  border: none;
+}

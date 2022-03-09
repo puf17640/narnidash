@@ -6,19 +6,22 @@ const Footer = () => {
         <div className="flex flex-col w-full mt-4 md:mt-0 md:flex-row">
           <nav className="flex flex-row items-center justify-center flex-1 gap-2 border-umbriagrey-border md:border-r md:pr-5">
             <a
+              target={"_blank"}
               href="mailto:julian@pufler.dev"
               className="px-2 py-1 border-2 rounded hover:text-umbria-200 border-umbria-500 hover:border-umbria-200"
             >
               Contact
             </a>
             <a
+              target={"_blank"}
               href="https://umbria.network"
               className="px-2 py-1 border-2 rounded hover:text-umbria-200 border-umbria-500 hover:border-umbria-200"
             >
               Umbria
             </a>
             <a
-              href="#"
+              target={"_blank"}
+              href="https://discord.gg/2Qwb39gQGH"
               className="px-2 py-1 border-2 rounded hover:text-umbria-200 border-umbria-500 hover:border-umbria-200"
             >
               Discord
