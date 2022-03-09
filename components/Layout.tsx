@@ -5,7 +5,7 @@ import Head from "next/head";
 import Header from "./Header";
 import Footer from "./Footer";
 
-const Layout = ({ children, title = "Narnidash | Dashboard & Wiki" }) => (
+const Layout = ({ children, title = "Narnidash | Dashboard & Wiki" }: any) => (
   <div>
     <Head>
       <meta charSet="utf-8" />

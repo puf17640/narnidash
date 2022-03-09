@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useWeb3Context } from "../context";
 import {
   ChainData,
+  TokenPrices,
   shortenAddress,
   loadStakedAssets,
   loadAssetPrices,
@@ -9,33 +10,33 @@ import {
   tokenImages,
 } from "../utils";
 
-interface TableData {
-  ethereum: {
-    ETH: number;
-    GHST: number;
-    MATIC: number;
-    UMBR: number;
-    USDT: number;
-    USDC: number;
-    WBTC: number;
+interface TableData extends Record<string, any> {
+  ethereum?: {
+    ETH?: number;
+    GHST?: number;
+    MATIC?: number;
+    UMBR?: number;
+    USDT?: number;
+    USDC?: number;
+    WBTC?: number;
   };
-  matic: {
-    ETH: number;
-    GHST: number;
-    MATIC: number;
-    UMBR: number;
-    USDT: number;
-    USDC: number;
-    WBTC: number;
+  matic?: {
+    ETH?: number;
+    GHST?: number;
+    MATIC?: number;
+    UMBR?: number;
+    USDT?: number;
+    USDC?: number;
+    WBTC?: number;
   };
-  binancesmartchain: {
-    ETH: number;
+  binancesmartchain?: {
+    ETH?: number;
   };
-  avax: {
-    ETH: number;
+  avax?: {
+    ETH?: number;
   };
-  fantom: {
-    ETH: number;
+  fantom?: {
+    ETH?: number;
   };
 }
 
@@ -43,8 +44,8 @@ const tableHeaders = ["Pool", "Balance", "Value ($)", "Total Value ($)"];
 
 const AssetTable = () => {
   const { address } = useWeb3Context();
-  const [tableData, setTableData] = useState<TableData | {}>({});
-  const [tokenPrices, setTokenPrices] = useState({});
+  const [tableData, setTableData] = useState<TableData>({});
+  const [tokenPrices, setTokenPrices] = useState<TokenPrices>({});
   const [tableDataLoading, setTableDataLoading] = useState(false);
 
   useEffect(() => {

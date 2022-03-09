@@ -4,6 +4,16 @@ export type ChainData = {
   tokens: { name: string; tokenAddress: string }[];
 };
 
+export type TokenPrices = Record<string, number> & {
+  ETH?: number;
+  GHST?: number;
+  MATIC?: number;
+  UMBR?: number;
+  USDT?: number;
+  USDC?: number;
+  WBTC?: number;
+};
+
 export const chainData: ChainData[] = [
   {
     network: "Ethereum",
@@ -99,7 +109,7 @@ export const chainData: ChainData[] = [
   },
 ];
 
-export const tokenImages = {
+export const tokenImages: Record<string, string> = {
   ETH: "/images/eth.svg",
   GHST: "/images/ghst.svg",
   MATIC: "/images/polygon.svg",
@@ -125,7 +135,7 @@ export async function loadAssetPrices() {
 }
 
 export async function loadStakedAssets(address: string) {
-  const data = {
+  const data: Record<string, any> = {
     ethereum: {},
     matic: {},
     binancesmartchain: {},

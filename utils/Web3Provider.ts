@@ -1,20 +1,22 @@
+import { ethers } from "ethers";
+
 export type Web3ProviderState = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   provider: any;
   web3Provider: ethers.providers.Web3Provider | null | undefined;
-  address: string | null | undefined;
+  address: string | undefined;
   network: ethers.providers.Network | null | undefined;
-  connect: (() => Promise<void>) | null;
-  disconnect: (() => Promise<void>) | null;
+  connect: () => Promise<void>;
+  disconnect: () => Promise<void>;
 };
 
 export const web3InitialState: Web3ProviderState = {
   provider: null,
   web3Provider: null,
-  address: null,
+  address: undefined,
   network: null,
-  connect: null,
-  disconnect: null,
+  connect: async () => {},
+  disconnect: async () => {},
 };
 
 export type Web3Action =
