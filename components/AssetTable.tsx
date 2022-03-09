@@ -47,21 +47,21 @@ const AssetTable = () => {
   const [tokenPrices, setTokenPrices] = useState({});
   const [tableDataLoading, setTableDataLoading] = useState(false);
 
-  useEffect(async () => {
+  useEffect(() => {
     console.log("loading token prices");
-    const data = await loadAssetPrices();
-    setTokenPrices(data);
+    loadAssetPrices().then(setTokenPrices);
   }, []);
 
-  useEffect(async () => {
+  useEffect(() => {
     setTableData({});
     if (!address) return;
     setTableDataLoading(true);
     console.log(`reloading stats for ${shortenAddress(address)}`);
 
-    const data = await loadStakedAssets(address);
-    setTableData(data);
-    setTableDataLoading(false);
+    loadStakedAssets(address).then((data) => {
+      setTableData(data);
+      setTableDataLoading(false);
+    });
   }, [address]);
 
   return (
