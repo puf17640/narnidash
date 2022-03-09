@@ -43,7 +43,7 @@ const tableHeaders = ["Pool", "Balance", "Value ($)", "Total Value ($)"];
 
 const AssetTable = () => {
   const { address } = useWeb3Context();
-  const [tableData, setTableData] = useState<TableData>({});
+  const [tableData, setTableData] = useState<TableData | {}>({});
   const [tokenPrices, setTokenPrices] = useState({});
   const [tableDataLoading, setTableDataLoading] = useState(false);
 
