@@ -1,0 +1,25 @@
+/* purgecss start ignore */
+@tailwind base;
+@tailwind components;
+/* purgecss end ignore */
+@tailwind utilities;
+
+@font-face {
+  font-family: "Happy Times";
+  src: url("/fonts/happy-times-NG_regular_master_web.woff2") format("woff2"),
+    url("/fonts/happy-times-NG_regular_master_web.woff") format("woff");
+}
+
+@font-face {
+  font-family: "DM Sans Regular";
+  src: url("/fonts/DMSans-Regular.woff") format("woff");
+}
+
+html {
+  @apply bg-umbriagrey-background;
+}
+
+body {
+  font-family: "DM Sans Regular", "Arial", sans-serif;
+  font-weight: 300;
+}
