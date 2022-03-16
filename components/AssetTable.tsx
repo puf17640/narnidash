@@ -52,6 +52,14 @@ const AssetTable = () => {
     query: { wallet },
   } = useRouter();
 
+  function calculateTotalOnNetwork(slug: string): number{
+    let total = 0;
+    for (let asset in tableData[slug]){
+      total += tableData[slug][asset]* tokenPrices[asset];
+    }
+    return total;
+  }
+
   useEffect(() => {
     console.log("loading token prices");
     loadAssetPrices().then(setTokenPrices);
@@ -88,6 +96,7 @@ const AssetTable = () => {
                       className="box-border p-4 text-lg text-center"
                     >
                       {network} Bridge
+                      {calculateTotalOnNetwork(slug)>0 && `: ${calculateTotalOnNetwork(slug).toLocaleString("en-us",{style: "currency", currency: "usd"})}`}
                     </td>
                   </tr>
                   <tr>
@@ -149,7 +158,8 @@ const AssetTable = () => {
                             (
                               tableData[slug][name] * tokenPrices[name]
                             ).toLocaleString("en-US", {
-                              maximumFractionDigits: 4,
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
                             })
                           ) : tableDataLoading ? (
                             <div className="animate-pulse">Loading...</div>
