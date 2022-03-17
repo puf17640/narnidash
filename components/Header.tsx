@@ -13,13 +13,13 @@ const Header = () => {
         <div className="flex gap-4">
           <Web3Button />
           <Link href="/" passHref>
-            <div className="cursor-pointer block px-2.5 py-1.5 font-bold rounded text-umbriagrey-background bg-umbria-500 hover:bg-umbria-600 text-sm">
+            <div className="cursor-pointer block px-2.5 py-1.5 font-bold rounded text-umbriagrey-background bg-umbria-500 hover:bg-umbria-600 transition-colors text-sm">
               Dashboard
             </div>
           </Link>
           <a
             target={"_blank"}
-            className="block px-2.5 py-1.5 font-bold rounded text-umbriagrey-background bg-umbria-500 hover:bg-umbria-600 text-sm"
+            className="block px-2.5 py-1.5 font-bold rounded text-umbriagrey-background bg-umbria-500 hover:bg-umbria-600 transition-colors text-sm"
             href="https://bridge.umbria.network"
           >
             Bridge

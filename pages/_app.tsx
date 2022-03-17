@@ -18,7 +18,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           closeButton={false}
           position={"bottom-right"}
           toastClassName={() =>
-            "rounded-lg bg-white my-2 mx-4 text-umbria-500 p-2"
+            "rounded-lg bg-umbriagrey-background border-umbriagrey-border border my-2 mx-4 text-umbria-500 p-2"
           }
         />
       </>
