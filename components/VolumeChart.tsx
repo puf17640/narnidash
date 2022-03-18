@@ -2,18 +2,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/solid";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-} from "recharts";
+import dynamic from "next/dynamic";
 import {
   chainData,
   loadBridgeVolumeData,
@@ -21,24 +10,34 @@ import {
   TokenPrices,
 } from "../utils";
 
-const initialVolumeData = [
-  { label: "30d" },
-  { label: "14d" },
-  { label: "7d" },
-  { label: "1d" },
-];
+const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 const VolumeChart = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
   const [currentNetworkIndex, setCurrentNetworkIndex] = useState(1);
   const [volumeDataLoading, setVolumeDataLoading] = useState(false);
-  const [volumeData, setVolumeData] = useState(initialVolumeData);
+  const [volumeData, setVolumeData] = useState([]);
+
   useEffect(() => {
-    if (!tokenPrices) return;
+    if (Object.keys(tokenPrices).length === 0) return;
     setVolumeDataLoading(true);
-    loadBridgeVolumeData(currentNetworkIndex, tokenPrices)
+    loadBridgeVolumeData(currentNetworkIndex)
       .then((volumeData) => {
-        console.log(volumeData);
-        setVolumeData(volumeData);
+        setVolumeData(
+          chainData[currentNetworkIndex].tokens.map(({ name, color }) => ({
+            name,
+            color,
+            price: tokenPrices[name],
+            days: volumeData.map(({ days }) => `${days}d`),
+            total: volumeData.map((entry) => entry[name]),
+            avg: volumeData.map((entry) => entry[name] / entry.days),
+            totalUsd: volumeData.map(
+              (entry) => entry[name] * tokenPrices[name]
+            ),
+            avgUsd: volumeData.map(
+              (entry) => (entry[name] / entry.days) * tokenPrices[name]
+            ),
+          }))
+        );
         setVolumeDataLoading(false);
       })
       .catch((e) =>
@@ -60,7 +59,7 @@ const VolumeChart = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
               <ChevronLeftIcon
                 className="h-8 w-8 text-[#ffffff4e] hover:text-umbria-200 transition-colors cursor-pointer"
                 onClick={() => {
-                  setVolumeData(initialVolumeData);
+                  setVolumeData([]);
                   setCurrentNetworkIndex(
                     currentNetworkIndex - 1 < 0
                       ? chainData.length - 1
@@ -74,51 +73,98 @@ const VolumeChart = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
               <ChevronRightIcon
                 className="h-8 w-8 text-[#ffffff4e] hover:text-umbria-200 transition-colors cursor-pointer"
                 onClick={() => {
-                  setVolumeData(initialVolumeData);
+                  setVolumeData([]);
                   setCurrentNetworkIndex(
                     (currentNetworkIndex + 1) % chainData.length
                   );
                 }}
               />
             </div>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart
-                data={
-                  volumeDataLoading || volumeData.length === 0
-                    ? initialVolumeData
-                    : volumeData
+            {typeof window !== "undefined" && (
+              <Chart
+                width={"100%"}
+                height={"300px"}
+                series={
+                  volumeData?.map(({ name, avgUsd }) => ({
+                    name,
+                    data: avgUsd,
+                  })) || []
                 }
-                margin={{ top: 15, right: 0, bottom: 15, left: 0 }}
-              >
-                <Tooltip />
-                <XAxis dataKey="label" stroke="#9370DB" />
-                <YAxis yAxisId={"avg"} stroke="#9370DB" />
-                {/* <YAxis yAxisId={"total"} stroke="#9370DB" orientation="right" /> */}
-                <CartesianGrid stroke="#ffffff1a" strokeDasharray="8 8" />
-                <Legend />
-                {chainData[currentNetworkIndex].tokens.map(
-                  ({ name, color }) => (
-                    <>
-                      <Line
-                        yAxisId={"avg"}
-                        type="monotone"
-                        dataKey={name}
-                        stroke={color}
-                        width={2}
-                      />
-                      {/* <Line
-                        yAxisId={"total"}
-                        key={`${name} (total)`}
-                        type="monotone"
-                        dataKey={`${name}Total`}
-                        stroke={color}
-                        width={2}
-                      /> */}
-                    </>
-                  )
-                )}
-              </LineChart>
-            </ResponsiveContainer>
+                options={{
+                  chart: {
+                    id: "volume-chart",
+                    height: "300px",
+                    foreColor: "#e5e7eb",
+                    zoom: { enabled: false },
+                    background: "transparent",
+                    animations: {
+                      enabled: true,
+                      easing: "easeinout",
+                      animateGradually: {
+                        enabled: true,
+                        delay: 250,
+                      },
+                      dynamicAnimation: {
+                        enabled: true,
+                        speed: 250,
+                      },
+                    },
+                  },
+                  colors: volumeData.map(({ color }) => color),
+                  dataLabels: {
+                    enabled: false,
+                  },
+                  markers: {
+                    size: 3,
+                    strokeWidth: 1,
+                    hover: {
+                      size: 5,
+                    },
+                  },
+                  stroke: {
+                    curve: "smooth",
+                    width: 2,
+                  },
+                  noData: {
+                    text: volumeDataLoading ? "Loading..." : "No data.",
+                    align: "center",
+                    verticalAlign: "middle",
+                    offsetY: -35,
+                    style: {
+                      fontSize: "18px",
+                    },
+                  },
+                  theme: { mode: "dark" },
+                  grid: {
+                    borderColor: "#ffffff1a",
+                    strokeDashArray: [8, 8],
+                    xaxis: {
+                      lines: {
+                        show: true,
+                      },
+                    },
+                    yaxis: {
+                      lines: {
+                        show: true,
+                      },
+                    },
+                  },
+                  xaxis: {
+                    categories: ["30d", "14d", "7d", "1d"],
+                  },
+                  yaxis: {
+                    labels: {
+                      formatter: (value) => {
+                        return value
+                          ? "$" + value.toLocaleString("en-US")
+                          : undefined;
+                      },
+                    },
+                  },
+                }}
+                type="line"
+              ></Chart>
+            )}
           </div>
         </div>
       </div>

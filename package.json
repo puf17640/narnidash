@@ -9,9 +9,11 @@
   "dependencies": {
     "@heroicons/react": "^1.0.6",
     "@walletconnect/web3-provider": "^1.7.4",
+    "apexcharts": "3.33.2",
     "ethers": "^5.5.4",
     "next": "12.1.0",
     "react": "17.0.2",
+    "react-apexcharts": "1.4.0",
     "react-dom": "17.0.2",
     "react-toastify": "^8.2.0",
     "recharts": "2.1.9",

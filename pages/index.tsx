@@ -18,19 +18,17 @@ function Index() {
       );
   }, []);
 
-  console.log(tokenPrices);
-
   return (
     <Layout>
       <div className="pt-16 pb-8">
         <AssetTable tokenPrices={tokenPrices} />
       </div>
       <div className="py-8">
-        <EarningsChart />
-      </div>
-      <div className="py-8">
         <VolumeChart tokenPrices={tokenPrices} />
       </div>
+      {/* <div className="py-8">
+        <EarningsChart />
+      </div> */}
     </Layout>
   );
 }

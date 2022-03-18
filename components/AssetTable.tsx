@@ -77,7 +77,7 @@ const AssetTable = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
   } = useRouter();
 
   useEffect(() => {
-    if (!tokenPrices) return;
+    if (Object.keys(tokenPrices).length === 0) return;
     setTableData({});
     if (!address && !wallet) return;
     setTableDataLoading(true);

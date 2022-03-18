@@ -2,20 +2,11 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/solid";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-} from "recharts";
+import dynamic from "next/dynamic";
 import { useWeb3Context } from "../context";
 import { chainData, loadEarningsHistory } from "../utils";
+
+const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 const initialEarningsData = [
   { label: "Jan" },
@@ -76,8 +67,6 @@ const EarningsChart = () => {
       );
   }, [currentNetworkIndex, address, wallet]);
 
-  // console.log(currentNetworkIndex, earningsData);
-
   return (
     <div className="container max-w-3xl mx-auto">
       <div
@@ -111,33 +100,91 @@ const EarningsChart = () => {
                 }}
               />
             </div>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart
-                data={
-                  earningsDataLoading || earningsData.length === 0
-                    ? initialEarningsData
-                    : earningsData
+            {typeof window !== "undefined" && (
+              <Chart
+                width={"100%"}
+                height={"300px"}
+                series={
+                  earningsData?.map(({ name, avgUsd }) => ({
+                    name,
+                    data: avgUsd,
+                  })) || []
                 }
-                margin={{ top: 15, right: 15, bottom: 15, left: 0 }}
-              >
-                <Tooltip />
-                <XAxis dataKey="label" stroke="#9370DB" />
-                <YAxis stroke="#9370DB" />
-                <CartesianGrid stroke="#ffffff1a" strokeDasharray="8 8" />
-                <Legend />
-                {chainData[currentNetworkIndex].tokens.map(
-                  ({ name, color }) => (
-                    <Line
-                      key={name}
-                      type="monotone"
-                      dataKey={name}
-                      stroke={color}
-                      width={2}
-                    />
-                  )
-                )}
-              </LineChart>
-            </ResponsiveContainer>
+                options={{
+                  chart: {
+                    id: "earnings-chart",
+                    height: "300px",
+                    foreColor: "#e5e7eb",
+                    zoom: { enabled: false },
+                    background: "transparent",
+                    animations: {
+                      enabled: true,
+                      easing: "easeinout",
+                      animateGradually: {
+                        enabled: true,
+                        delay: 250,
+                      },
+                      dynamicAnimation: {
+                        enabled: true,
+                        speed: 250,
+                      },
+                    },
+                  },
+                  colors: earningsData?.map(({ color }) => color),
+                  dataLabels: {
+                    enabled: false,
+                  },
+                  markers: {
+                    size: 3,
+                    strokeWidth: 1,
+                    hover: {
+                      size: 5,
+                    },
+                  },
+                  stroke: {
+                    curve: "smooth",
+                    width: 2,
+                  },
+                  noData: {
+                    text: earningsDataLoading ? "Loading..." : "No data.",
+                    align: "center",
+                    verticalAlign: "middle",
+                    offsetY: -35,
+                    style: {
+                      fontSize: "18px",
+                    },
+                  },
+                  theme: { mode: "dark" },
+                  grid: {
+                    borderColor: "#ffffff1a",
+                    strokeDashArray: [8, 8],
+                    xaxis: {
+                      lines: {
+                        show: true,
+                      },
+                    },
+                    yaxis: {
+                      lines: {
+                        show: true,
+                      },
+                    },
+                  },
+                  xaxis: {
+                    categories: earningsData.map(({ name }) => name),
+                  },
+                  yaxis: {
+                    labels: {
+                      formatter: (value) => {
+                        return value
+                          ? "$" + value.toLocaleString("en-US")
+                          : undefined;
+                      },
+                    },
+                  },
+                }}
+                type="line"
+              ></Chart>
+            )}
           </div>
         </div>
       </div>

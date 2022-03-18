@@ -1,4 +1,4 @@
-export type TokenData = { name: string; tokenAddress: string };
+export type TokenData = { name: string; tokenAddress: string; color: string };
 
 export type ChainData = {
   network: string;
@@ -145,7 +145,7 @@ export async function loadBridgeVolumeData(
   networkIndex: number,
   tokenPrices: TokenPrices
 ) {
-  const getToday = () => +new Date().setUTCHours(0, 0, 0, 0) / 1e3;
+  const getToday = () => parseInt(+new Date() / 1e3);
   const daySeconds = 60 * 60 * 24;
 
   let data = [];
@@ -156,96 +156,15 @@ export async function loadBridgeVolumeData(
       }&timeSince=${getToday() - days * daySeconds}`
     ).then((res) => res.json());
     if (res.error) throw Error(res.response);
-    console.log(
-      parseInt(res.result["ether"]) / 1e18,
-      (parseInt(res.result["ether"]) / 1e18) * tokenPrices.ETH
-    );
     data.push({
-      label: `${days}d`,
-      // ETHTotal: (
-      //   (parseInt(res.result["ether"]) / 1e18) *
-      //   tokenPrices.ETH
-      // ).toLocaleString("en-US", {
-      //   maximumFractionDigits: 3,
-      // }),
-      ETH: (
-        (parseInt(res.result["ether"]) / days / 1e18) *
-        tokenPrices.ETH
-      ).toLocaleString("en-US", {
-        maximumFractionDigits: 3,
-      }),
-      // GHSTTotal: (
-      //   (parseInt(res.result["ghost"]) / 1e18) *
-      //   tokenPrices.GHST
-      // ).toLocaleString("en-US", {
-      //             maximumFractionDigits: 3,
-      //           }),
-      GHST: (
-        (parseInt(res.result["ghost"]) / days / 1e18) *
-        tokenPrices.GHST
-      ).toLocaleString("en-US", {
-        maximumFractionDigits: 3,
-      }),
-      // MATICTotal: (
-      //   (parseInt(res.result["MATIC"]) / 1e18) *
-      //   tokenPrices.MATIC
-      // ).toLocaleString("en-US", {
-      //   maximumFractionDigits: 3,
-      // }),
-      MATIC: (
-        (parseInt(res.result["MATIC"]) / days / 1e18) *
-        tokenPrices.MATIC
-      ).toLocaleString("en-US", {
-        maximumFractionDigits: 3,
-      }),
-      // UMBRTotal: (
-      //   (parseInt(res.result["umbria"]) / 1e18) *
-      //   tokenPrices.UMBR
-      // ).toLocaleString("en-US", {
-      //   maximumFractionDigits: 3,
-      // }),
-      MATIC: (
-        (parseInt(res.result["umbria"]) / days / 1e18) *
-        tokenPrices.UMBR
-      ).toLocaleString("en-US", {
-        maximumFractionDigits: 3,
-      }),
-      // USDTTotal: (
-      //   (parseInt(res.result["tether"]) / 1e18) *
-      //   tokenPrices.USDT
-      // ).toLocaleString("en-US", {
-      //   maximumFractionDigits: 3,
-      // }),
-      USDT: (
-        (parseInt(res.result["tether"]) / days / 1e18) *
-        tokenPrices.USDT
-      ).toLocaleString("en-US", {
-        maximumFractionDigits: 3,
-      }),
-      // USDCTotal: (
-      //   (parseInt(res.result["usdc"]) / 1e18) *
-      //   tokenPrices.USDC
-      // ).toLocaleString("en-US", {
-      //   maximumFractionDigits: 3,
-      // }),
-      USDC: (
-        (parseInt(res.result["usdc"]) / days / 1e18) *
-        tokenPrices.USDC
-      ).toLocaleString("en-US", {
-        maximumFractionDigits: 3,
-      }),
-      // WBTCTotal: (
-      //   (parseInt(res.result["wbtc"]) / 1e18) *
-      //   tokenPrices.WBTC
-      // ).toLocaleString("en-US", {
-      //   maximumFractionDigits: 3,
-      // }),
-      WBTC: (
-        (parseInt(res.result["wbtc"]) / days / 1e18) *
-        tokenPrices.WBTC
-      ).toLocaleString("en-US", {
-        maximumFractionDigits: 3,
-      }),
+      days,
+      ETH: +res.result["ether"] / 1e18,
+      GHST: +res.result["ghost"] / 1e18,
+      MATIC: +res.result["matic"] / 1e18,
+      UMBR: +res.result["umbria"] / 1e18,
+      USDT: +res.result["tether"] / 1e18,
+      USDC: +res.result["usdc"] / 1e18,
+      WBTC: +res.result["wbtc"] / 1e18,
     });
   }
   return data;
@@ -287,11 +206,6 @@ export async function loadEarningsHistory(
         })
       );
 
-    // json.forEach(({ amount, month }) => {
-    //   if (data[month][name]) data[month][name] += amount;
-    //   else data[month][name] = amount;
-    // });
-
     const newData = json.reduce(
       (sumByMonth, cur) => {
         if (sumByMonth[cur.month][name])
@@ -306,6 +220,7 @@ export async function loadEarningsHistory(
       [name]: getFormattedAmount(`${newData[index][name] ?? "0"}`),
     }));
   }
+  console.log(data);
   return data;
 }
 
