@@ -21,6 +21,9 @@ const VolumeChart = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
   useEffect(() => {
     if (Object.keys(tokenPrices).length === 0) return;
     setVolumeDataLoading(true);
+    console.log(
+      `reloading volume data for ${chainData[currentNetworkIndex].network}`
+    );
     loadBridgeVolumeData(currentNetworkIndex)
       .then((volumeData) => {
         setVolumeData(
@@ -53,8 +56,6 @@ const VolumeChart = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
         })
       );
   }, [currentNetworkIndex, tokenPrices]);
-
-  console.log(volumeData);
 
   return (
     <div className="container max-w-3xl mx-auto">

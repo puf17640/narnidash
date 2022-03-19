@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import dynamic from "next/dynamic";
 import { useWeb3Context } from "../context";
-import { chainData, loadEarningsHistory, EarningsHistoryData } from "../utils";
+import {
+  chainData,
+  loadEarningsHistory,
+  EarningsHistoryData,
+  shortenAddress,
+} from "../utils";
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -24,6 +29,11 @@ const EarningsChart = () => {
   useEffect(() => {
     if (!address && !wallet) return;
     setEarningsDataLoading(true);
+    console.log(
+      `reloading volume data for ${shortenAddress(
+        address ?? (wallet as string)
+      )} on ${chainData[currentNetworkIndex].network}`
+    );
     loadEarningsHistory(address ?? (wallet as string), currentNetworkIndex)
       .then((earnings) => {
         const indices = [
