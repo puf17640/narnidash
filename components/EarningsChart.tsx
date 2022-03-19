@@ -27,10 +27,11 @@ const EarningsChart = () => {
   } = useRouter();
 
   useEffect(() => {
+    setEarningsData({});
     if (!address && !wallet) return;
     setEarningsDataLoading(true);
     console.log(
-      `reloading volume data for ${shortenAddress(
+      `reloading earnings data for ${shortenAddress(
         address ?? (wallet as string)
       )} on ${chainData[currentNetworkIndex].network}`
     );
@@ -56,6 +57,7 @@ const EarningsChart = () => {
           Math.max(indices[0] - 1, 0),
           Math.min(indices[1] - indices[0] + 2, earnings.length)
         );
+
         setEarningsData({
           data: chainData[currentNetworkIndex].tokens.map(
             ({ name, color }) => ({
@@ -125,6 +127,7 @@ const EarningsChart = () => {
                     foreColor: "#e5e7eb",
                     zoom: { enabled: false },
                     background: "transparent",
+                    fontFamily: "'DM Sans Regular', 'Arial', sans-serif",
                     animations: {
                       enabled: true,
                       easing: "easeinout",
@@ -154,12 +157,16 @@ const EarningsChart = () => {
                     width: 2,
                   },
                   noData: {
-                    text: earningsDataLoading ? "Loading..." : "No data.",
+                    text: earningsDataLoading
+                      ? "Loading..."
+                      : !(address ?? (wallet as string))
+                      ? "Connect wallet."
+                      : "No data.",
                     align: "center",
                     verticalAlign: "middle",
                     offsetY: -35,
                     style: {
-                      fontSize: "18px",
+                      fontSize: "1.125rem",
                     },
                   },
                   theme: { mode: "dark" },

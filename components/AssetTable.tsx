@@ -140,7 +140,8 @@ const AssetTable = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
 
     if (
       sortedTokens.length > 0 &&
-      (tableDataLoading || tableData[slug] != null)
+      (tableDataLoading || tableData[slug] != null) &&
+      (address ?? (wallet as string))
     ) {
       return sortedTokens.map(({ name, tokenAddress }) => (
         <tr

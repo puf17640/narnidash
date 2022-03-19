@@ -107,6 +107,7 @@ const VolumeChart = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
                     foreColor: "#e5e7eb",
                     zoom: { enabled: false },
                     background: "transparent",
+                    fontFamily: "'DM Sans Regular', 'Arial', sans-serif",
                     animations: {
                       enabled: true,
                       easing: "easeinout",
@@ -141,7 +142,7 @@ const VolumeChart = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
                     verticalAlign: "middle",
                     offsetY: -35,
                     style: {
-                      fontSize: "18px",
+                      fontSize: "1.125rem",
                     },
                   },
                   theme: { mode: "dark" },

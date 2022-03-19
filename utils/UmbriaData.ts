@@ -200,9 +200,7 @@ export async function loadEarningsHistory(
   networkIndex: number
 ) {
   let data: VolumeMonthData[] = [
-    {
-      label: "Jan",
-    },
+    { label: "Jan" },
     { label: "Feb" },
     { label: "Mar" },
     { label: "Apr" },
@@ -235,14 +233,16 @@ export async function loadEarningsHistory(
 
     const newData = json.reduce(
       (sumByMonth: any, cur) => {
-        sumByMonth[cur.month][name] += cur.amount;
+        if (sumByMonth[cur.month][name])
+          sumByMonth[cur.month][name] += cur.amount;
+        else sumByMonth[cur.month][name] = cur.amount;
         return sumByMonth;
       },
       [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]
     );
     data = data.map((entry, index) => ({
       ...entry,
-      [name]: getFormattedAmount(`${newData[index][name] ?? "0"}`),
+      [name]: (newData[index][name] ?? 0) / 1e18,
     }));
   }
   return data;
