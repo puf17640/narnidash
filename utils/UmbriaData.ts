@@ -169,29 +169,34 @@ export function getFormattedAmount(amountString: string) {
   return [...tempBalance.splice(0, 18), ".", ...tempBalance].reverse().join("");
 }
 
-export async function loadBridgeVolumeData(networkIndex: number) {
+export async function loadBridgeVolumeData() {
   const getToday = () => Math.floor(+new Date() / 1e3);
   const daySeconds = 60 * 60 * 24;
 
-  let data: Record<string, number>[] = [];
-  for (const days of [30, 14, 7, 1]) {
-    const res = await fetch(
-      `https://bridgeapi.umbria.network/api/bridge/getAvgBridgeVolumeAll/?network=${
-        chainData[networkIndex].slug
-      }&timeSince=${getToday() - days * daySeconds}`
-    ).then((res) => res.json());
-    if (res.error) throw Error(res.response);
-    data.push({
-      days,
-      ETH: +res.result["ether"] / 1e18,
-      GHST: +res.result["ghost"] / 1e18,
-      MATIC: +res.result["MATIC"] / 1e18,
-      UMBR: +res.result["umbria"] / 1e18,
-      USDT: +res.result["tether"] / 1e18,
-      USDC: +res.result["usdc"] / 1e18,
-      WBTC: +res.result["wbtc"] / 1e18,
-    });
+  let data: Record<string, Record<string, number>[]> = Object.fromEntries(
+    chainData.map(({ slug }) => [slug, []])
+  );
+  for (const { slug } of chainData) {
+    for (const days of [30, 14, 7, 1]) {
+      const res = await fetch(
+        `https://bridgeapi.umbria.network/api/bridge/getAvgBridgeVolumeAll/?network=${slug}&timeSince=${
+          getToday() - days * daySeconds
+        }`
+      ).then((res) => res.json());
+      if (res.error) throw Error(res.response);
+      data[slug].push({
+        days,
+        ETH: +res.result["ether"] / 1e18,
+        GHST: +res.result["ghost"] / 1e18,
+        MATIC: +res.result["MATIC"] / 1e18,
+        UMBR: +res.result["umbria"] / 1e18,
+        USDT: +res.result["tether"] / 1e18,
+        USDC: +res.result["usdc"] / 1e18,
+        WBTC: +res.result["wbtc"] / 1e18,
+      });
+    }
   }
+  console.log(data);
   return data;
 }
 
