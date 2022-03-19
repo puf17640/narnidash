@@ -4,30 +4,18 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import dynamic from "next/dynamic";
 import { useWeb3Context } from "../context";
-import { chainData, loadEarningsHistory } from "../utils";
+import { chainData, loadEarningsHistory, EarningsHistoryData } from "../utils";
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
-
-const initialEarningsData = [
-  { label: "Jan" },
-  { label: "Feb" },
-  { label: "Mar" },
-  { label: "Apr" },
-  { label: "May" },
-  { label: "Jun" },
-  { label: "Jul" },
-  { label: "Aug" },
-  { label: "Sep" },
-  { label: "Oct" },
-  { label: "Nov" },
-  { label: "Dec" },
-];
 
 const EarningsChart = () => {
   const { address } = useWeb3Context();
   const [currentNetworkIndex, setCurrentNetworkIndex] = useState(1);
   const [earningsDataLoading, setEarningsDataLoading] = useState(false);
-  const [earningsData, setEarningsData] = useState(initialEarningsData);
+  const [earningsData, setEarningsData] = useState<{
+    data?: EarningsHistoryData[];
+    labels?: string[];
+  }>({});
 
   const {
     query: { wallet },
@@ -36,28 +24,38 @@ const EarningsChart = () => {
   useEffect(() => {
     if (!address && !wallet) return;
     setEarningsDataLoading(true);
-    loadEarningsHistory(address ?? wallet, currentNetworkIndex)
+    loadEarningsHistory(address ?? (wallet as string), currentNetworkIndex)
       .then((earnings) => {
         const indices = [
           earnings.findIndex(
             ({ label, ...month }) =>
-              Object.values(month).reduce((a, b) => a + parseFloat(b), 0) > 0
+              (Object.values(month) as number[]).reduce((a, b) => a + b, 0) > 0
           ),
           earnings.length -
             [...earnings]
               .reverse()
               .findIndex(
                 ({ label, ...month }) =>
-                  Object.values(month).reduce((a, b) => a + parseFloat(b), 0) >
-                  0
+                  (Object.values(month) as number[]).reduce(
+                    (a, b) => a + b,
+                    0
+                  ) > 0
               ),
         ];
-        setEarningsData(
-          earnings.splice(
-            Math.max(indices[0] - 1, 0),
-            Math.min(indices[1] - indices[0] + 2, earnings.length)
-          )
+        const splitEarnings = earnings.splice(
+          Math.max(indices[0] - 1, 0),
+          Math.min(indices[1] - indices[0] + 2, earnings.length)
         );
+        setEarningsData({
+          data: chainData[currentNetworkIndex].tokens.map(
+            ({ name, color }) => ({
+              name,
+              color,
+              amount: splitEarnings.map((entry) => entry[name] as number),
+            })
+          ),
+          labels: splitEarnings.map(({ label }) => label),
+        });
         setEarningsDataLoading(false);
       })
       .catch((e) =>
@@ -79,7 +77,7 @@ const EarningsChart = () => {
               <ChevronLeftIcon
                 className="h-8 w-8 text-[#ffffff4e] hover:text-umbria-200 transition-colors cursor-pointer"
                 onClick={() => {
-                  setEarningsData(initialEarningsData);
+                  setEarningsData({});
                   setCurrentNetworkIndex(
                     currentNetworkIndex - 1 < 0
                       ? chainData.length - 1
@@ -87,13 +85,13 @@ const EarningsChart = () => {
                   );
                 }}
               />
-              <div className="text-umbria-500 text-lg underline underline-offset-1">
+              <div className="text-umbria-500 text-lg underline underline-offset-1 text-center">
                 {chainData[currentNetworkIndex].network} Earnings History
               </div>
               <ChevronRightIcon
                 className="h-8 w-8 text-[#ffffff4e] hover:text-umbria-200 transition-colors cursor-pointer"
                 onClick={() => {
-                  setEarningsData(initialEarningsData);
+                  setEarningsData({});
                   setCurrentNetworkIndex(
                     (currentNetworkIndex + 1) % chainData.length
                   );
@@ -105,10 +103,10 @@ const EarningsChart = () => {
                 width={"100%"}
                 height={"300px"}
                 series={
-                  earningsData?.map(({ name, avgUsd }) => ({
+                  earningsData?.data?.map(({ name, amount }) => ({
                     name,
-                    data: avgUsd,
-                  })) || []
+                    data: amount,
+                  })) ?? []
                 }
                 options={{
                   chart: {
@@ -130,7 +128,7 @@ const EarningsChart = () => {
                       },
                     },
                   },
-                  colors: earningsData?.map(({ color }) => color),
+                  colors: earningsData?.data?.map(({ color }) => color),
                   dataLabels: {
                     enabled: false,
                   },
@@ -157,7 +155,7 @@ const EarningsChart = () => {
                   theme: { mode: "dark" },
                   grid: {
                     borderColor: "#ffffff1a",
-                    strokeDashArray: [8, 8],
+                    strokeDashArray: 8,
                     xaxis: {
                       lines: {
                         show: true,
@@ -170,16 +168,10 @@ const EarningsChart = () => {
                     },
                   },
                   xaxis: {
-                    categories: earningsData.map(({ name }) => name),
+                    categories: earningsData?.labels,
                   },
                   yaxis: {
-                    labels: {
-                      formatter: (value) => {
-                        return value
-                          ? "$" + value.toLocaleString("en-US")
-                          : undefined;
-                      },
-                    },
+                    decimalsInFloat: 8,
                   },
                 }}
                 type="line"

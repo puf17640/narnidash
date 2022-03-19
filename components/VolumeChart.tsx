@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import dynamic from "next/dynamic";
 import {
   chainData,
+  BridgeVolumeData,
   loadBridgeVolumeData,
   loadEarningsHistory,
   TokenPrices,
@@ -15,7 +16,7 @@ const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 const VolumeChart = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
   const [currentNetworkIndex, setCurrentNetworkIndex] = useState(1);
   const [volumeDataLoading, setVolumeDataLoading] = useState(false);
-  const [volumeData, setVolumeData] = useState([]);
+  const [volumeData, setVolumeData] = useState<BridgeVolumeData[]>([]);
 
   useEffect(() => {
     if (Object.keys(tokenPrices).length === 0) return;
@@ -28,13 +29,19 @@ const VolumeChart = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
             color,
             price: tokenPrices[name],
             days: volumeData.map(({ days }) => `${days}d`),
-            total: volumeData.map((entry) => entry[name]),
-            avg: volumeData.map((entry) => entry[name] / entry.days),
-            totalUsd: volumeData.map(
-              (entry) => entry[name] * tokenPrices[name]
+            total: volumeData.map((entry) =>
+              isNaN(entry[name]) ? null : entry[name]
             ),
-            avgUsd: volumeData.map(
-              (entry) => (entry[name] / entry.days) * tokenPrices[name]
+            avg: volumeData.map((entry) =>
+              isNaN(entry[name]) ? null : entry[name] / entry.days
+            ),
+            totalUsd: volumeData.map((entry) =>
+              isNaN(entry[name]) ? null : entry[name] * tokenPrices[name]
+            ),
+            avgUsd: volumeData.map((entry) =>
+              isNaN(entry[name])
+                ? null
+                : (entry[name] / entry.days) * tokenPrices[name]
             ),
           }))
         );
@@ -46,6 +53,8 @@ const VolumeChart = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
         })
       );
   }, [currentNetworkIndex, tokenPrices]);
+
+  console.log(volumeData);
 
   return (
     <div className="container max-w-3xl mx-auto">
@@ -67,8 +76,8 @@ const VolumeChart = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
                   );
                 }}
               />
-              <div className="text-umbria-500 text-lg underline underline-offset-1">
-                {chainData[currentNetworkIndex].network} Bridge Volume
+              <div className="text-umbria-500 text-lg underline underline-offset-1 text-center">
+                Average {chainData[currentNetworkIndex].network} Bridge Volume
               </div>
               <ChevronRightIcon
                 className="h-8 w-8 text-[#ffffff4e] hover:text-umbria-200 transition-colors cursor-pointer"
@@ -88,7 +97,7 @@ const VolumeChart = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
                   volumeData?.map(({ name, avgUsd }) => ({
                     name,
                     data: avgUsd,
-                  })) || []
+                  })) ?? []
                 }
                 options={{
                   chart: {
@@ -137,7 +146,7 @@ const VolumeChart = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
                   theme: { mode: "dark" },
                   grid: {
                     borderColor: "#ffffff1a",
-                    strokeDashArray: [8, 8],
+                    strokeDashArray: 8,
                     xaxis: {
                       lines: {
                         show: true,
@@ -154,10 +163,10 @@ const VolumeChart = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
                   },
                   yaxis: {
                     labels: {
-                      formatter: (value) => {
+                      formatter: (value): any => {
                         return value
                           ? "$" + value.toLocaleString("en-US")
-                          : undefined;
+                          : null;
                       },
                     },
                   },

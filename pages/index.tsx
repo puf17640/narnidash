@@ -26,9 +26,9 @@ function Index() {
       <div className="py-8">
         <VolumeChart tokenPrices={tokenPrices} />
       </div>
-      {/* <div className="py-8">
+      <div className="py-8">
         <EarningsChart />
-      </div> */}
+      </div>
     </Layout>
   );
 }

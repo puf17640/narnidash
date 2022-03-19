@@ -6,7 +6,35 @@ export type ChainData = {
   tokens: TokenData[];
 };
 
+export type BridgeVolumeData = {
+  name: string;
+  color: string;
+  price: number;
+  days: string[];
+  total: (number | null)[];
+  avg: (number | null)[];
+  totalUsd: (number | null)[];
+  avgUsd: (number | null)[];
+};
+
+export type EarningsHistoryData = {
+  name: string;
+  color: string;
+  amount: number[];
+};
+
 export type TokenPrices = Record<string, number> & {
+  ETH?: number;
+  GHST?: number;
+  MATIC?: number;
+  UMBR?: number;
+  USDT?: number;
+  USDC?: number;
+  WBTC?: number;
+};
+
+export type VolumeMonthData = Record<string, string | number> & {
+  label: string;
   ETH?: number;
   GHST?: number;
   MATIC?: number;
@@ -141,14 +169,11 @@ export function getFormattedAmount(amountString: string) {
   return [...tempBalance.splice(0, 18), ".", ...tempBalance].reverse().join("");
 }
 
-export async function loadBridgeVolumeData(
-  networkIndex: number,
-  tokenPrices: TokenPrices
-) {
-  const getToday = () => parseInt(+new Date() / 1e3);
+export async function loadBridgeVolumeData(networkIndex: number) {
+  const getToday = () => Math.floor(+new Date() / 1e3);
   const daySeconds = 60 * 60 * 24;
 
-  let data = [];
+  let data: Record<string, number>[] = [];
   for (const days of [30, 14, 7, 1]) {
     const res = await fetch(
       `https://bridgeapi.umbria.network/api/bridge/getAvgBridgeVolumeAll/?network=${
@@ -160,7 +185,7 @@ export async function loadBridgeVolumeData(
       days,
       ETH: +res.result["ether"] / 1e18,
       GHST: +res.result["ghost"] / 1e18,
-      MATIC: +res.result["matic"] / 1e18,
+      MATIC: +res.result["MATIC"] / 1e18,
       UMBR: +res.result["umbria"] / 1e18,
       USDT: +res.result["tether"] / 1e18,
       USDC: +res.result["usdc"] / 1e18,
@@ -174,8 +199,10 @@ export async function loadEarningsHistory(
   userAddress: string,
   networkIndex: number
 ) {
-  let data = [
-    { label: "Jan" },
+  let data: VolumeMonthData[] = [
+    {
+      label: "Jan",
+    },
     { label: "Feb" },
     { label: "Mar" },
     { label: "Apr" },
@@ -207,10 +234,8 @@ export async function loadEarningsHistory(
       );
 
     const newData = json.reduce(
-      (sumByMonth, cur) => {
-        if (sumByMonth[cur.month][name])
-          sumByMonth[cur.month][name] += parseInt(cur.amount);
-        else sumByMonth[cur.month][name] = parseInt(cur.amount);
+      (sumByMonth: any, cur) => {
+        sumByMonth[cur.month][name] += cur.amount;
         return sumByMonth;
       },
       [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]
@@ -220,7 +245,6 @@ export async function loadEarningsHistory(
       [name]: getFormattedAmount(`${newData[index][name] ?? "0"}`),
     }));
   }
-  console.log(data);
   return data;
 }
 

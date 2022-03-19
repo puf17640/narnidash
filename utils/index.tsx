@@ -5,7 +5,13 @@ export function shortenAddress(address?: string) {
 
 export type { Web3ProviderState, Web3Action } from "./Web3Provider";
 export { web3InitialState, web3Reducer } from "./Web3Provider";
-export type { ChainData, TokenPrices, TokenData } from "./UmbriaData";
+export type {
+  ChainData,
+  TokenPrices,
+  TokenData,
+  BridgeVolumeData,
+  EarningsHistoryData,
+} from "./UmbriaData";
 export {
   loadStakedAssets,
   loadAssetPrices,
