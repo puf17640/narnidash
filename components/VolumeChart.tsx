@@ -50,12 +50,11 @@ const VolumeChart = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
         );
         setVolumeDataLoading(false);
       })
-      .catch((e) => {
-        console.log(e);
+      .catch((e) =>
         toast.error(`An error occured while loading bridge volume data.`, {
           autoClose: 5000,
-        });
-      });
+        })
+      );
   }, [tokenPrices]);
 
   return (

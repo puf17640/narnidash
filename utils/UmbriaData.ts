@@ -196,7 +196,6 @@ export async function loadBridgeVolumeData() {
       });
     }
   }
-  console.log(data);
   return data;
 }
 
