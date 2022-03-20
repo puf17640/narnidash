@@ -119,6 +119,7 @@ const VolumeChart = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
                       },
                     },
                   },
+                  legend: { showForSingleSeries: true },
                   colors: volumeData[currentNetworkIndex]?.map(
                     ({ color }) => color
                   ),

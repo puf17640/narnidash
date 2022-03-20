@@ -173,7 +173,7 @@ const AssetTable = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
             data-label={tableHeaders[1].name}
             className="px-4 py-4 text-sm border-b border-gray-200 flex justify-between items-center md:table-cell before:content-[attr(data-label)] before:w-24 before:uppercase before:text-gray-300 before:underline-offset-2 before:text-lg before:underline md:before:hidden"
           >
-            <p className="text-gray-300 whitespace-no-wrap">
+            <p className="text-gray-300 text-center whitespace-no-wrap">
               {tableData[slug] != null ? (
                 tableData[slug][name]
               ) : tableDataLoading ? (
@@ -187,7 +187,7 @@ const AssetTable = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
             data-label={tableHeaders[2].name}
             className="px-4 py-4 text-sm border-b border-gray-200 flex justify-between items-center md:table-cell before:content-[attr(data-label)] before:w-24 before:uppercase before:text-gray-300 before:underline-offset-2 before:text-lg before:underline md:before:hidden"
           >
-            <p className="text-gray-300 whitespace-no-wrap">
+            <p className="text-gray-300 text-center whitespace-no-wrap">
               {tokenPrices[name] ? (
                 "$" +
                 tokenPrices[name].toLocaleString("en-US", {
@@ -202,13 +202,14 @@ const AssetTable = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
             data-label={tableHeaders[3].name}
             className="px-4 py-4 text-sm border-b border-gray-200 flex justify-between items-center md:table-cell before:content-[attr(data-label)] before:w-24 before:uppercase before:text-gray-300 before:underline-offset-2 before:text-lg before:underline md:before:hidden"
           >
-            <p className="text-gray-300 whitespace-no-wrap">
+            <p className="text-gray-300 text-center whitespace-no-wrap">
               {tableData[slug] != null ? (
                 "$" +
                 (tableData[slug][name] * tokenPrices[name]).toLocaleString(
                   "en-US",
                   {
-                    maximumFractionDigits: 4,
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
                   }
                 )
               ) : tableDataLoading ? (
@@ -249,9 +250,9 @@ const AssetTable = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
                 {chainData.map(({ network, slug, tokens }) => (
                   <>
                     <tr className="border-b-2 border-umbria-200 text-umbria-500">
-                      <td colSpan={3}>
+                      <td colSpan={4}>
                         <div className="flex flex-col items-center select-none md:flex-row">
-                          <div className="flex items-center order-2 gap-2 pb-4 md:order-1 md:pb-0">
+                          <div className="flex flex-1 items-center order-2 gap-2 pb-4 md:order-1 md:pb-0">
                             <div className="inline-block text-base text-umbria-500 whitespace-nowrap">
                               Hide Zero Balances
                             </div>
@@ -271,7 +272,7 @@ const AssetTable = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
                             </div>
                           </div>
                           <div
-                            className="box-border flex-grow order-1 p-4 text-lg text-center underline cursor-pointer md:order-2 underline-offset-1"
+                            className="flex flex-1 justify-center box-border order-1 pb-4 pt-4 text-lg underline cursor-pointer md:order-2 underline-offset-1"
                             onClick={() =>
                               setHideSections({
                                 ...hideSections,
@@ -279,7 +280,7 @@ const AssetTable = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
                               })
                             }
                           >
-                            <div className="flex items-center justify-center gap-2">
+                            <div className="flex items-center gap-2">
                               <span className="whitespace-nowrap">
                                 {network} Bridge
                               </span>
@@ -290,11 +291,7 @@ const AssetTable = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
                               )}
                             </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="hidden md:table-cell">
-                        <div>
-                          <div className="flex items-center justify-center">
+                          <div className="flex flex-1 order-3 justify-end pb-4 md:pb-0">
                             {tableDataLoading ? (
                               <span className="animate-pulse">Loading...</span>
                             ) : (
@@ -309,10 +306,11 @@ const AssetTable = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
                                       0
                                     )
                                     .toLocaleString("en-US", {
-                                      maximumFractionDigits: 4,
+                                      maximumFractionDigits: 2,
+                                      minimumFractionDigits: 2,
                                     })
                                 : "0.00")
-                            )}
+                            )}{" "}
                           </div>
                         </div>
                       </td>
@@ -342,7 +340,7 @@ const AssetTable = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
                             scope="col"
                             className="px-4 py-3 text-base text-left text-gray-200 uppercase border-b border-gray-200 cursor-pointer select-none whitespace-nowrap"
                           >
-                            <div className="flex items-center gap-1">
+                            <div className="flex justify-center items-center gap-1">
                               <span key="name">{name}</span>
                               {sortAscending && sorter === sorting ? (
                                 <ArrowDownIcon
