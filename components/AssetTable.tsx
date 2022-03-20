@@ -153,7 +153,7 @@ const AssetTable = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
         >
           <td
             data-label={tableHeaders[0].name}
-            className="px-4 py-4 text-sm border-b border-gray-200 flex justify-between items-center md:table-cell before:content-[attr(data-label)] before:w-24 before:uppercase before:text-gray-300 before:underline-offset-2 before:text-lg before:underline md:before:hidden"
+            className="px-4 py-4 border-b flex justify-center items-center md:table-cell md:before:hidden"
           >
             <div className="flex items-center">
               <div className="flex-shrink-0 order-2 md:order-1">
@@ -171,7 +171,7 @@ const AssetTable = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
           </td>
           <td
             data-label={tableHeaders[1].name}
-            className="px-4 py-4 text-sm border-b border-gray-200 flex justify-between items-center md:table-cell before:content-[attr(data-label)] before:w-24 before:uppercase before:text-gray-300 before:underline-offset-2 before:text-lg before:underline md:before:hidden"
+            className="px-4 py-4 text-sm border-b border-gray-200 flex justify-between items-center md:table-cell before:content-[attr(data-label)] before:w-24 before:text-gray-300 before:underline-offset-2 md:before:hidden"
           >
             <p className="text-gray-300 text-center whitespace-no-wrap">
               {tableData[slug] != null ? (
@@ -185,7 +185,7 @@ const AssetTable = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
           </td>
           <td
             data-label={tableHeaders[2].name}
-            className="px-4 py-4 text-sm border-b border-gray-200 flex justify-between items-center md:table-cell before:content-[attr(data-label)] before:w-24 before:uppercase before:text-gray-300 before:underline-offset-2 before:text-lg before:underline md:before:hidden"
+            className="px-4 py-4 text-sm border-b border-gray-200 flex justify-between items-center md:table-cell before:content-[attr(data-label)] before:w-24 before:text-gray-300 before:underline-offset-2 md:before:hidden"
           >
             <p className="text-gray-300 text-center whitespace-no-wrap">
               {tokenPrices[name] ? (
@@ -200,7 +200,7 @@ const AssetTable = ({ tokenPrices }: { tokenPrices: TokenPrices }) => {
           </td>
           <td
             data-label={tableHeaders[3].name}
-            className="px-4 py-4 text-sm border-b border-gray-200 flex justify-between items-center md:table-cell before:content-[attr(data-label)] before:w-24 before:uppercase before:text-gray-300 before:underline-offset-2 before:text-lg before:underline md:before:hidden"
+            className="px-4 py-4 text-sm border-b border-gray-200 flex justify-between items-center md:table-cell before:content-[attr(data-label)] before:w-24 before:text-gray-300 before:underline-offset-2 md:before:hidden"
           >
             <p className="text-gray-300 text-center whitespace-no-wrap">
               {tableData[slug] != null ? (
