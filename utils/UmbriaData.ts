@@ -44,6 +44,8 @@ export type VolumeMonthData = Record<string, string | number> & {
   WBTC?: number;
 };
 
+export type TvlData = Record<string, Record<string, number | undefined>>;
+
 export const chainData: ChainData[] = [
   {
     network: "Ethereum",
@@ -169,17 +171,42 @@ export function getFormattedAmount(amountString: string) {
   return [...tempBalance.splice(0, 18), ".", ...tempBalance].reverse().join("");
 }
 
+export async function loadTVLData() {
+  const data: TvlData = {
+    ethereum: {},
+    matic: {},
+    binancesmartchain: {},
+    avax: {},
+    fantom: {},
+  };
+
+  for (const { slug, tokens } of chainData) {
+    for (const { name, tokenAddress } of tokens) {
+      const json = await fetch(
+        `https://bridge-api.umbria.network/api/bridge/getAvailableLiquidity/?network=${slug}&currency=${tokenAddress}`
+      ).then((res) => res.json());
+      data[slug][name] = parseInt(json.totalLiquidity) / 1e18;
+    }
+  }
+  return data;
+}
+
 export async function loadBridgeVolumeData() {
   const getToday = () => Math.floor(+new Date() / 1e3);
   const daySeconds = 60 * 60 * 24;
 
-  let data: Record<string, Record<string, number>[]> = Object.fromEntries(
-    chainData.map(({ slug }) => [slug, []])
-  );
+  let data: Record<string, Record<string, number>[]> = {
+    ethereum: [],
+    matic: [],
+    binancesmartchain: [],
+    avax: [],
+    fantom: [],
+  };
+
   for (const { slug } of chainData) {
     for (const days of [30, 14, 7, 1]) {
       const res = await fetch(
-        `https://bridgeapi.umbria.network/api/bridge/getAvgBridgeVolumeAll/?network=${slug}&timeSince=${
+        `https://bridge-api.umbria.network/api/bridge/getAvgBridgeVolumeAll/?network=${slug}&timeSince=${
           getToday() - days * daySeconds
         }`
       ).then((res) => res.json());
@@ -218,22 +245,21 @@ export async function loadEarningsHistory(
     { label: "Dec" },
   ];
   for (const { name, tokenAddress } of chainData[networkIndex].tokens) {
-    const json = await fetch(
-      `https://bridgeapi.umbria.network/api/pool/getEarningsHistoryByLiquidityAddress/?&userAddress=${userAddress}&tokenAddress=${tokenAddress}&network=${chainData[networkIndex].slug}&liquidityAddress=0x18C6f86ee9f099DeFe10b4201e48B2eF53BeAbd0`
-    )
-      .then((res) => res.json())
-      .then((json: any[]) =>
-        json.map((earning) => {
-          const date = new Date(earning.time + " UTC");
-          return {
-            amount:
-              date.getUTCFullYear() === new Date().getUTCFullYear()
-                ? parseInt(earning.amount)
-                : 0,
-            month: date.getUTCMonth(),
-          };
-        })
-      );
+    const res = await fetch(
+      `https://bridge-api.umbria.network/api/pool/getEarningsHistoryByLiquidityAddress/?&userAddress=${userAddress}&tokenAddress=${tokenAddress}&network=${chainData[networkIndex].slug}&liquidityAddress=0x18C6f86ee9f099DeFe10b4201e48B2eF53BeAbd0`
+    ).then((res) => res.json());
+    if (res.error) throw Error(res.response);
+
+    const json = (res.result as any[]).map((earning) => {
+      const date = new Date(earning.time + " UTC");
+      return {
+        amount:
+          date.getUTCFullYear() === new Date().getUTCFullYear()
+            ? parseInt(earning.amount)
+            : 0,
+        month: date.getUTCMonth(),
+      };
+    });
 
     const newData = json.reduce(
       (sumByMonth: any, cur) => {
@@ -253,27 +279,28 @@ export async function loadEarningsHistory(
 }
 
 export async function loadAssetPrices() {
-  const json = await fetch(
-    "https://api.coingecko.com/api/v3/simple/price?ids=ethereum%2Caavegotchi%2Cmatic-network%2Cumbra-network%2Ctether%2Cusd-coin%2Cwrapped-bitcoin&vs_currencies=usd"
-  ).then((res) => res.json());
-  return {
-    ETH: json["ethereum"].usd,
-    GHST: json["aavegotchi"].usd,
-    MATIC: json["matic-network"].usd,
-    UMBR: json["umbra-network"].usd,
-    USDT: json["tether"].usd,
-    USDC: json["usd-coin"].usd,
-    WBTC: json["wrapped-bitcoin"].usd,
-  };
+  // const res = await fetch(
+  //   "https://api.coingecko.com/api/v3/simple/price?ids=ethereum%2Caavegotchi%2Cmatic-network%2Cumbra-network%2Ctether%2Cusd-coin%2Cwrapped-bitcoin&vs_currencies=usd"
+  // ).then((res) => res.json());
+
   // return {
-  //   ETH: Math.random() * 10000,
-  //   GHST: Math.random() * 30,
-  //   MATIC: Math.random() * 10,
-  //   UMBR: Math.random() * 50,
-  //   USDT: 1 + (Math.random() - 0.5) / 100,
-  //   USDC: 1 + (Math.random() - 0.5) / 100,
-  //   WBTC: Math.random() * 100000,
+  //   ETH: json["ethereum"].usd,
+  //   GHST: json["aavegotchi"].usd,
+  //   MATIC: json["matic-network"].usd,
+  //   UMBR: json["umbra-network"].usd,
+  //   USDT: json["tether"].usd,
+  //   USDC: json["usd-coin"].usd,
+  //   WBTC: json["wrapped-bitcoin"].usd,
   // };
+  return {
+    ETH: Math.random() * 10000,
+    GHST: Math.random() * 30,
+    MATIC: Math.random() * 10,
+    UMBR: Math.random() * 50,
+    USDT: 1 + (Math.random() - 0.5) / 100,
+    USDC: 1 + (Math.random() - 0.5) / 100,
+    WBTC: Math.random() * 100000,
+  };
 }
 
 export async function loadStakedAssets(address: string) {
@@ -287,19 +314,19 @@ export async function loadStakedAssets(address: string) {
 
   for (const { network, slug, tokens } of chainData) {
     for (const { name, tokenAddress } of tokens) {
-      const json = await fetch(
-        `https://bridge-api.umbria.network/api/pool/getStaked/?tokenAddress=${tokenAddress}&userAddress=${address}&network=${slug}`
-      ).then((res) => res.json());
-      if (json.error) {
-        console.error(json.error);
-      }
-      if (json.amount == 0) {
-        data[slug][name] = "0.00";
-      } else {
-        data[slug][name] = getFormattedAmount(`${json.amount}`);
-      }
-      // data[slug][name] =
-      //   Math.random() > 0.25 ? (Math.random() * 10000).toString() : "0.00";
+      // const json = await fetch(
+      //   `https://bridge-api.umbria.network/api/pool/getStaked/?tokenAddress=${tokenAddress}&userAddress=${address}&network=${slug}`
+      // ).then((res) => res.json());
+      // if (json.error) {
+      //   console.error(json.error);
+      // }
+      // if (json.amount == 0) {
+      //   data[slug][name] = "0.00";
+      // } else {
+      //   data[slug][name] = getFormattedAmount(`${json.amount}`);
+      // }
+      data[slug][name] =
+        Math.random() > 0.25 ? (Math.random() * 10000).toString() : "0.00";
     }
   }
   return data;
