@@ -175,13 +175,12 @@ export async function loadTVLData() {
   const data: TvlData = {
     ethereum: {},
     matic: {},
-    binancesmartchain: {},
-    avax: {},
-    fantom: {},
   };
 
-  for (const { slug, tokens } of chainData) {
-    for (const { name, tokenAddress } of tokens) {
+  for (const [slug] of Object.entries(data)) {
+    for (const { name, tokenAddress } of (
+      chainData.find((chain) => chain.slug === slug) as ChainData
+    ).tokens) {
       const json = await fetch(
         `https://bridge-api.umbria.network/api/bridge/getAvailableLiquidity/?network=${slug}&currency=${tokenAddress}`
       ).then((res) => res.json());
@@ -279,28 +278,28 @@ export async function loadEarningsHistory(
 }
 
 export async function loadAssetPrices() {
-  // const res = await fetch(
-  //   "https://api.coingecko.com/api/v3/simple/price?ids=ethereum%2Caavegotchi%2Cmatic-network%2Cumbra-network%2Ctether%2Cusd-coin%2Cwrapped-bitcoin&vs_currencies=usd"
-  // ).then((res) => res.json());
+  const res = await fetch(
+    "https://api.coingecko.com/api/v3/simple/price?ids=ethereum%2Caavegotchi%2Cmatic-network%2Cumbra-network%2Ctether%2Cusd-coin%2Cwrapped-bitcoin&vs_currencies=usd"
+  ).then((res) => res.json());
 
-  // return {
-  //   ETH: json["ethereum"].usd,
-  //   GHST: json["aavegotchi"].usd,
-  //   MATIC: json["matic-network"].usd,
-  //   UMBR: json["umbra-network"].usd,
-  //   USDT: json["tether"].usd,
-  //   USDC: json["usd-coin"].usd,
-  //   WBTC: json["wrapped-bitcoin"].usd,
-  // };
   return {
-    ETH: Math.random() * 10000,
-    GHST: Math.random() * 30,
-    MATIC: Math.random() * 10,
-    UMBR: Math.random() * 50,
-    USDT: 1 + (Math.random() - 0.5) / 100,
-    USDC: 1 + (Math.random() - 0.5) / 100,
-    WBTC: Math.random() * 100000,
+    ETH: res["ethereum"].usd,
+    GHST: res["aavegotchi"].usd,
+    MATIC: res["matic-network"].usd,
+    UMBR: res["umbra-network"].usd,
+    USDT: res["tether"].usd,
+    USDC: res["usd-coin"].usd,
+    WBTC: res["wrapped-bitcoin"].usd,
   };
+  // return {
+  //   ETH: Math.random() * 10000,
+  //   GHST: Math.random() * 30,
+  //   MATIC: Math.random() * 10,
+  //   UMBR: Math.random() * 50,
+  //   USDT: 1 + (Math.random() - 0.5) / 100,
+  //   USDC: 1 + (Math.random() - 0.5) / 100,
+  //   WBTC: Math.random() * 100000,
+  // };
 }
 
 export async function loadStakedAssets(address: string) {
@@ -314,19 +313,19 @@ export async function loadStakedAssets(address: string) {
 
   for (const { network, slug, tokens } of chainData) {
     for (const { name, tokenAddress } of tokens) {
-      // const json = await fetch(
-      //   `https://bridge-api.umbria.network/api/pool/getStaked/?tokenAddress=${tokenAddress}&userAddress=${address}&network=${slug}`
-      // ).then((res) => res.json());
-      // if (json.error) {
-      //   console.error(json.error);
-      // }
-      // if (json.amount == 0) {
-      //   data[slug][name] = "0.00";
-      // } else {
-      //   data[slug][name] = getFormattedAmount(`${json.amount}`);
-      // }
-      data[slug][name] =
-        Math.random() > 0.25 ? (Math.random() * 10000).toString() : "0.00";
+      const json = await fetch(
+        `https://bridge-api.umbria.network/api/pool/getStaked/?tokenAddress=${tokenAddress}&userAddress=${address}&network=${slug}`
+      ).then((res) => res.json());
+      if (json.error) {
+        console.error(json.error);
+      }
+      if (json.amount == 0) {
+        data[slug][name] = "0.00";
+      } else {
+        data[slug][name] = getFormattedAmount(`${json.amount}`);
+      }
+      // data[slug][name] =
+      //   Math.random() > 0.25 ? (Math.random() * 10000).toString() : "0.00";
     }
   }
   return data;
