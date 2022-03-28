@@ -212,13 +212,13 @@ export async function loadBridgeVolumeData() {
       if (res.error) throw Error(res.response);
       data[slug].push({
         days,
-        ETH: +res.result["ether"] / 1e18,
-        GHST: +res.result["ghost"] / 1e18,
-        MATIC: +res.result["MATIC"] / 1e18,
-        UMBR: +res.result["umbria"] / 1e18,
-        USDT: +res.result["tether"] / 1e18,
-        USDC: +res.result["usdc"] / 1e18,
-        WBTC: +res.result["wbtc"] / 1e18,
+        ETH: (+res.result["ether"] || 0) / 1e18,
+        GHST: (+res.result["ghost"] || 0) / 1e18,
+        MATIC: (+res.result["MATIC"] || 0) / 1e18,
+        UMBR: (+res.result["umbria"] || 0) / 1e18,
+        USDT: (+res.result["tether"] || 0) / 1e18,
+        USDC: (+res.result["usdc"] || 0) / 1e18,
+        WBTC: (+res.result["wbtc"] || 0) / 1e18,
       });
     }
   }
