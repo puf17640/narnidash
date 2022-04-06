@@ -244,12 +244,14 @@ export async function loadEarningsHistory(
     { label: "Dec" },
   ];
   for (const { name, tokenAddress } of chainData[networkIndex].tokens) {
-    const res = await fetch(
+    const apiRes = await fetch(
       `https://bridge-api.umbria.network/api/pool/getEarningsHistoryByLiquidityAddress/?&userAddress=${userAddress}&tokenAddress=${tokenAddress}&network=${chainData[networkIndex].slug}&liquidityAddress=0x18C6f86ee9f099DeFe10b4201e48B2eF53BeAbd0`
-    ).then((res) => res.json());
-    if (res.error) throw Error(res.response);
+    );
 
-    const json = (res.result as any[]).map((earning) => {
+    if (!apiRes.ok) throw Error(apiRes.statusText);
+    const res: Record<string, string>[] = await apiRes.json();
+
+    const json = res.map((earning) => {
       const date = new Date(earning.time + " UTC");
       return {
         amount:
