@@ -201,27 +201,41 @@ export async function loadBridgeVolumeData() {
     avax: [],
     fantom: [],
   };
-
+  const promises = [];
+  const info: { days: number; slug: string }[] = [];
   for (const { slug } of chainData) {
     for (const days of [30, 14, 7, 1]) {
-      const res = await fetch(
-        `https://bridge-api.umbria.network/api/bridge/getAvgBridgeVolumeAll/?network=${slug}&timeSince=${
-          getToday() - days * daySeconds
-        }`
-      ).then((res) => res.json());
-      if (res.error) throw Error(res.response);
-      data[slug].push({
-        days,
-        ETH: (+res.result["ether"] || 0) / 1e18,
-        GHST: (+res.result["ghost"] || 0) / 1e18,
-        MATIC: (+res.result["MATIC"] || 0) / 1e18,
-        UMBR: (+res.result["umbria"] || 0) / 1e18,
-        USDT: (+res.result["tether"] || 0) / 1e18,
-        USDC: (+res.result["usdc"] || 0) / 1e18,
-        WBTC: (+res.result["wbtc"] || 0) / 1e18,
-      });
+      info.push({ days, slug });
+      promises.push(
+        fetch(
+          `https://bridge-api.umbria.network/api/bridge/getAvgBridgeVolumeAll/?network=${slug}&timeSince=${
+            getToday() - days * daySeconds
+          }`
+        ).then((res) => {
+          if (!res.ok) throw Error(res.statusText);
+          return res.json();
+        })
+      );
     }
   }
+
+  const resolutions: {
+    error: string;
+    result: Record<string, string>;
+  }[] = await Promise.all(promises);
+
+  resolutions.map((res, i) => {
+    data[info[i].slug].push({
+      days: info[i].days,
+      ETH: (+res.result["ether"] || 0) / 1e18,
+      GHST: (+res.result["ghost"] || 0) / 1e18,
+      MATIC: (+res.result["MATIC"] || 0) / 1e18,
+      UMBR: (+res.result["umbria"] || 0) / 1e18,
+      USDT: (+res.result["tether"] || 0) / 1e18,
+      USDC: (+res.result["usdc"] || 0) / 1e18,
+      WBTC: (+res.result["wbtc"] || 0) / 1e18,
+    });
+  });
   return data;
 }
 
