@@ -259,14 +259,33 @@ export async function loadEarningsHistory(
     { label: "Nov" },
     { label: "Dec" },
   ];
+
+  const promises: Promise<
+    {
+      contractAddress: string;
+      amount: string;
+      network: string;
+      time: string;
+    }[]
+  >[] = [];
+  const info: { name: string; tokenAddress: string }[] = [];
+
   for (const { name, tokenAddress } of chainData[networkIndex].tokens) {
-    const apiRes = await fetch(
-      `https://bridge-api.umbria.network/api/pool/getEarningsHistoryByLiquidityAddress/?&userAddress=${userAddress}&tokenAddress=${tokenAddress}&network=${chainData[networkIndex].slug}&liquidityAddress=0x18C6f86ee9f099DeFe10b4201e48B2eF53BeAbd0`
+    info.push({ name, tokenAddress });
+    promises.push(
+      fetch(
+        `https://bridge-api.umbria.network/api/pool/getEarningsHistoryByLiquidityAddress/?&userAddress=${userAddress}&tokenAddress=${tokenAddress}&network=${chainData[networkIndex].slug}&liquidityAddress=0x18C6f86ee9f099DeFe10b4201e48B2eF53BeAbd0`
+      ).then((apiRes) => {
+        if (!apiRes.ok) throw Error(apiRes.statusText);
+        return apiRes.json();
+      })
     );
+  }
 
-    if (!apiRes.ok) throw Error(apiRes.statusText);
-    const res: Record<string, string>[] = await apiRes.json();
+  const resolutions = await Promise.all(promises);
 
+  resolutions.map(async (res, i) => {
+    const { name } = info[i];
     const json = res.map((earning) => {
       const date = new Date(earning.time + " UTC");
       return {
@@ -291,7 +310,8 @@ export async function loadEarningsHistory(
       ...entry,
       [name]: (newData[index][name] ?? 0) / 1e18,
     }));
-  }
+  });
+
   return data;
 }
 
