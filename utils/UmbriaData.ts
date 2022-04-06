@@ -201,8 +201,10 @@ export async function loadBridgeVolumeData() {
     avax: [],
     fantom: [],
   };
-  const promises = [];
+
+  const promises: Promise<any>[] = [];
   const info: { days: number; slug: string }[] = [];
+
   for (const { slug } of chainData) {
     for (const days of [30, 14, 7, 1]) {
       info.push({ days, slug });
@@ -327,22 +329,37 @@ export async function loadStakedAssets(address: string) {
     fantom: {},
   };
 
+  const promises: Promise<any>[] = [];
+  const info: { name: string; slug: string }[] = [];
+
   for (const { network, slug, tokens } of chainData) {
     for (const { name, tokenAddress } of tokens) {
-      const json = await fetch(
-        `https://bridge-api.umbria.network/api/pool/getStaked/?tokenAddress=${tokenAddress}&userAddress=${address}&network=${slug}`
-      ).then((res) => res.json());
-      if (json.error) {
-        console.error(json.error);
-      }
-      if (json.amount == 0) {
-        data[slug][name] = "0.00";
-      } else {
-        data[slug][name] = getFormattedAmount(`${json.amount}`);
-      }
-      // data[slug][name] =
-      //   Math.random() > 0.25 ? (Math.random() * 10000).toString() : "0.00";
+      info.push({ name, slug });
+      promises.push(
+        fetch(
+          `https://bridge-api.umbria.network/api/pool/getStaked/?tokenAddress=${tokenAddress}&userAddress=${address}&network=${slug}`
+        ).then((res) => res.json())
+      );
     }
   }
+
+  const resolutions: { amount: number; error: string }[] = await Promise.all(
+    promises
+  );
+
+  resolutions.map((json, i) => {
+    const { slug, name } = info[i];
+    if (json.error) {
+      console.error(json.error);
+    }
+    if (json.amount == 0) {
+      data[slug][name] = "0.00";
+    } else {
+      data[slug][name] = getFormattedAmount(`${json.amount}`);
+    }
+    // data[slug][name] =
+    //   Math.random() > 0.25 ? (Math.random() * 10000).toString() : "0.00";
+  });
+
   return data;
 }
